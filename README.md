@@ -7,6 +7,7 @@ UnityID: ghu4
 
 ## Overview
 ECE 406, ECE/CSC 506, Fall 2024, Architecture Of Parallel Computers. 
+
 This project implements a cache coherence simulator for a multiprocessor system using the MESI and MOESI protocols. The simulator models cache behavior across multiple processors, supporting realistic evaluation of:
 
 - Read and write operations with cache hits and misses.
