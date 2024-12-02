@@ -26,10 +26,10 @@ This project implements a cache coherence simulator for a multiprocessor system 
 
 
 ## Bus Snooping
-### 3.MESI_Bus_Snoop:
+### 1.MESI_Bus_Snoop:
 - Handles bus transactions (BusRd, BusRdX, BusUpgr) in the MESI protocol.
 - Invalidates or transitions cache states in response to coherence requests from other processors.
-### 3. MOESI_Bus_Snoop:
+### 2. MOESI_Bus_Snoop:
 - Extends MESI_Bus_Snoop with support for the Owner state.
 - Includes logic for handling dirty blocks and reducing memory bandwidth usage.
 
