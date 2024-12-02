@@ -89,7 +89,7 @@ void Cache::MESI_Processor_Access(ulong addr,uchar rw, int copy , Cache **cache,
         reads++;
         readMisses++;
         if(copy)
-        { 
+        {
             for (int i = 0; i < num_processors; i++) 
             {
                 if (i != processor) 
@@ -150,7 +150,7 @@ void Cache::MESI_Bus_Snoop(ulong addr , int busread,int busreadx, int busupgrade
         if (cache_flag == Modified)
         {
             // writeBacks++;
-            writeBack(addr);
+            // writeBack(addr);
             line->setFlags(Shared);
             flushes++;
             Total_execution_time += 100;
