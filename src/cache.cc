@@ -9,14 +9,15 @@ using namespace std;
 Cache::Cache(int s,int a,int b )
 {
    
-    ulong i, j;
+   ulong i, j;
 
     lineSize = (ulong)(b);
-    sets = 1;                // Only one set for fully associative
-    assoc = 30000;           // Large associativity to simulate "infinite" cache
-    numLines = assoc;        // The number of lines is equal to associativity
-    
-    
+    sets = 1;               // Only one set for fully associative
+    assoc = 10000;        // Large associativity to simulate "infinite" cache
+    numLines = assoc;       // The number of lines is equal to associativity
+  
+   
+ 
     cache = new cacheLine*[sets];
     for (i = 0; i < sets; i++) {
         cache[i] = new cacheLine[assoc];
@@ -26,7 +27,6 @@ Cache::Cache(int s,int a,int b )
     }    
    
 }
-
 
 void Cache::MESI_Processor_Access(ulong addr,uchar rw, int copy , Cache **cache, int processor, int num_processors )
 {
@@ -67,8 +67,6 @@ void Cache::MESI_Processor_Access(ulong addr,uchar rw, int copy , Cache **cache,
             {
                 writes++;
                 Writehits++;
-                busupgr++;
-                // printf("write2\n");
                 Total_execution_time += 3;
                 for (int i = 0; i < num_processors; i++) 
                 {
@@ -102,10 +100,17 @@ void Cache::MESI_Processor_Access(ulong addr,uchar rw, int copy , Cache **cache,
             Total_execution_time += 15;
 
             fillLine(addr)->setFlags(Shared);
-            printf("After fill line shared: %d\n", findLine(addr)->getFlags());
+            // printf("After fill line shared: %lu\n", findLine(addr)->getFlags());
         }else
         {
             mem_trans++;
+            for (int i = 0; i < num_processors; i++) 
+            {
+                if (i != processor) 
+                {
+                    cache[i]->MESI_Bus_Snoop(addr, 1, 0, 0);
+                }
+            }
             fillLine(addr)->setFlags(Exclusive);
             Total_execution_time += 100;
         }
@@ -117,9 +122,16 @@ void Cache::MESI_Processor_Access(ulong addr,uchar rw, int copy , Cache **cache,
         writes++;  
         writeMisses++;
         mem_trans++;
+        for (int i = 0; i < num_processors; i++) 
+        {
+            if (i != processor) 
+            {
+                cache[i]->MESI_Bus_Snoop(addr, 0, 1, 0);
+            }
+        }
         fillLine(addr)->setFlags(Exclusive);
         Total_execution_time += 100;
-        printf("after fill line write: %d\n", findLine(addr)->getFlags());
+        // printf("after fill line write: %lu\n", findLine(addr)->getFlags());
 
     }
 }
@@ -198,7 +210,7 @@ void Cache::MOESI_Processor_Access(ulong addr,uchar rw, int copy, Cache **cache,
         // ! check it's read or write, now read
         if(rw == 'r')
         {
-            if((cache_flag == Owner))
+            if(cache_flag == Owner)
             {
                 reads++;
                 Readhits++;
@@ -235,7 +247,7 @@ void Cache::MOESI_Processor_Access(ulong addr,uchar rw, int copy, Cache **cache,
                 return;
             }
 
-            if((cache_flag == Modified))
+            if(cache_flag == Modified)
             {
                 writes++;
                 Writehits++;
@@ -244,7 +256,7 @@ void Cache::MOESI_Processor_Access(ulong addr,uchar rw, int copy, Cache **cache,
                 return;
             }
 
-            if((cache_flag == Exclusive))
+            if(cache_flag == Exclusive)
             {
                 writes++;
                 Writehits++;
@@ -278,6 +290,13 @@ void Cache::MOESI_Processor_Access(ulong addr,uchar rw, int copy, Cache **cache,
         else
         {
             mem_trans++;
+            for (int i = 0; i < num_processors; i++) 
+            {
+                if (i != processor) 
+                {
+                    cache[i]->MOESI_Bus_Snoop(addr, 1, 0, 0);
+                }
+            }
             fillLine(addr)->setFlags(Exclusive);
             Total_execution_time += 100;
 
@@ -289,6 +308,13 @@ void Cache::MOESI_Processor_Access(ulong addr,uchar rw, int copy, Cache **cache,
         writes++;
         writeMisses++;
         mem_trans++;
+        for (int i = 0; i < num_processors; i++) 
+        {
+            if (i != processor) 
+            {
+                cache[i]->MOESI_Bus_Snoop(addr, 0, 1, 0);
+            }
+        }
         Total_execution_time += 100;
         fillLine(addr)->setFlags(Modified);
     }
@@ -343,7 +369,7 @@ void Cache::MOESI_Bus_Snoop(ulong addr , int busread,int busreadx, int busupgrad
                 Total_execution_time += 15;
         }
 
-        if((cache_flag == Shared))
+        if(cache_flag == Shared)
         {
             // flushes++;
             line->setFlags(INVALID);
@@ -357,7 +383,6 @@ void Cache::MOESI_Bus_Snoop(ulong addr , int busread,int busreadx, int busupgrad
         if((cache_flag == Shared) || (cache_flag == Owner))
         {
             line->setFlags(INVALID);
-            // printf("invalidation here");
             invalidations++;
         }
     }
