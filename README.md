@@ -38,6 +38,7 @@ This project implements a cache coherence simulator for a multiprocessor system 
 ### Compilation
 To compile the simulator, use the provided <span style="background-color: #f0f0f0; font-family: monospace; padding: 2px 4px; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);">Makefile</span> 
 
+    git clone https://github.com/Garson-hu/CSC506.git
     cd src
     make all
 
